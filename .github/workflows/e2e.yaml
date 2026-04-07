@@ -8,6 +8,10 @@ on:
         description: "pubm version to test"
         default: "latest"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -29,18 +33,18 @@ jobs:
           node -e "
             const fs = require('fs');
             const jsr = JSON.parse(fs.readFileSync('jsr.json', 'utf8'));
-            jsr.version = process.env.VERSION;
+            jsr.version = '${VERSION}';
             fs.writeFileSync('jsr.json', JSON.stringify(jsr, null, 2));
           "
 
       - name: Publish
-        run: bunx pubm --mode ci --phase publish --any-branch
+        run: bunx pubm --mode ci --phase publish --any-branch --skip-release
         env:
           JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
 
       - name: Verify deployment
         run: |
-          sleep 10
+          sleep 30
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jsr.io/@syi0808/pubm-test-single-jsr/${VERSION}/meta.json")
           if [ "$STATUS" != "200" ]; then
             echo "::error::Package not found on jsr (HTTP $STATUS)"

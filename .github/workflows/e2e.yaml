@@ -47,8 +47,8 @@ jobs:
           sleep 30
           BODY=$(curl -s "https://jsr.io/@syi0808/pubm-test-single-jsr/meta.json")
           STATUS=$(echo "$BODY" | grep -c "$VERSION" || true)
-          if [ "$STATUS" != "200" ]; then
-            echo "::error::Package not found on jsr (HTTP $STATUS)"
+          if [ "$STATUS" = "0" ]; then
+            echo "::error::Package version $VERSION not found on jsr"
             exit 1
           fi
           echo "Package verified on jsr"
